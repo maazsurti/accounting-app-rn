@@ -38,7 +38,7 @@ Kirana stores, cloth shops, and pan parlours run on paper ledgers and memory. Th
 |---|---|
 | 📱 App framework | Expo (React Native) + TypeScript |
 | 🧭 Routing | Expo Router (file-based navigation) |
-| ⚡ State management | `@preact/signals-react` |
+| ⚡ State management | MobX |
 | 🗄️ Local database | SQLite (`expo-sqlite`) + Drizzle ORM |
 | 🧪 Testing | Jest + React Native Testing Library |
 
