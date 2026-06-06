@@ -21,14 +21,14 @@ export const items = sqliteTable('items', {
   isStarred: integer('is_starred').notNull().default(0),
   createdAt: isoDateTime('created_at').notNull(),
   updatedAt: isoDateTime('updated_at'),
-  deletedAt: isoDateTime('deleted_at'),
+  deletedAt: isoDateTime('deleted_at')
 });
 
 export const saleBatches = sqliteTable('sale_batches', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   customerName: text('customer_name'),
   customerPhone: text('customer_phone'),
-  createdAt: isoDateTime('created_at').notNull(),
+  createdAt: isoDateTime('created_at').notNull()
 });
 
 export const transactions = sqliteTable(
@@ -43,12 +43,12 @@ export const transactions = sqliteTable(
     sellingPriceAtTime: real('selling_price_at_time').notNull(),
     costPriceAtTime: real('cost_price_at_time').notNull(),
     soldAt: isoDateTime('sold_at').notNull(),
-    batchId: integer('batch_id').references(() => saleBatches.id),
+    batchId: integer('batch_id').references(() => saleBatches.id)
   },
   (table) => [
     index('idx_transactions_sold_at').on(table.soldAt),
-    index('idx_transactions_item_id').on(table.itemId),
-  ],
+    index('idx_transactions_item_id').on(table.itemId)
+  ]
 );
 
 export const customers = sqliteTable('customers', {
@@ -56,7 +56,7 @@ export const customers = sqliteTable('customers', {
   name: text('name').notNull(),
   phone: text('phone'),
   createdAt: isoDateTime('created_at').notNull(),
-  deletedAt: isoDateTime('deleted_at'),
+  deletedAt: isoDateTime('deleted_at')
 });
 
 export const creditEntries = sqliteTable('credit_entries', {
@@ -69,7 +69,7 @@ export const creditEntries = sqliteTable('credit_entries', {
   note: text('note'),
   date: isoDateTime('date').notNull(),
   createdAt: isoDateTime('created_at').notNull(),
-  reminderAt: isoDateTime('reminder_at'),
+  reminderAt: isoDateTime('reminder_at')
 });
 
 export const transactionModifications = sqliteTable('transaction_modifications', {
@@ -82,5 +82,5 @@ export const transactionModifications = sqliteTable('transaction_modifications',
   newQuantity: real('new_quantity'),
   oldSellingPrice: real('old_selling_price').notNull(),
   newSellingPrice: real('new_selling_price'),
-  modifiedAt: isoDateTime('modified_at').notNull(),
+  modifiedAt: isoDateTime('modified_at').notNull()
 });

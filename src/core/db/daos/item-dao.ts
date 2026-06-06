@@ -110,6 +110,11 @@ export class ItemDao {
 
   /** Test/seed helper — not part of the Dart DAO; exposed for unit tests. */
   getAllActiveTyped(): ItemRow[] {
-    return this.db.select().from(items).where(isNull(items.deletedAt)).orderBy(desc(items.id)).all();
+    return this.db
+      .select()
+      .from(items)
+      .where(isNull(items.deletedAt))
+      .orderBy(desc(items.id))
+      .all();
   }
 }

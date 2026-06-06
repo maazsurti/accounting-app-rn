@@ -70,7 +70,7 @@ const CREATE_TABLE_STATEMENTS = [
     modified_at TEXT NOT NULL
   )`,
   `CREATE INDEX IF NOT EXISTS idx_transactions_sold_at ON transactions (sold_at)`,
-  `CREATE INDEX IF NOT EXISTS idx_transactions_item_id ON transactions (item_id)`,
+  `CREATE INDEX IF NOT EXISTS idx_transactions_item_id ON transactions (item_id)`
 ];
 
 export function createSchema(db: AppDatabase): void {

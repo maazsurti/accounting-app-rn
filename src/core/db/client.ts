@@ -10,7 +10,7 @@ import * as schema from './schema';
  * underlying driver is `expo-sqlite` (device) or `better-sqlite3` (tests),
  * which is what lets DAOs be written once against `AppDatabase`.
  */
-export type AppDatabase = BaseSQLiteDatabase<'sync', any, typeof schema>;
+export type AppDatabase = BaseSQLiteDatabase<'sync', unknown, typeof schema>;
 
 const DATABASE_NAME = 'accounting_app.db';
 
