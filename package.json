@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "dependencies": {
     "@expo/ui": "~56.0.16",
+    "@preact/signals-react": "^3.10.1",
     "drizzle-orm": "^0.45.2",
     "expo": "~56.0.9",
     "expo-constants": "~56.0.17",
