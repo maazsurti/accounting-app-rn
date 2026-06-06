@@ -1,56 +1,42 @@
-# Welcome to your Expo app 👋
+# Accounting App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+An offline-first ledger, inventory, and sales-tracking app for micro-merchants — kirana stores, cloth shops, and pan parlours — built with **React Native, Expo, and TypeScript**.
 
-## Get started
+The app is designed for shopkeepers who have never used a business app before: older users, basic smartphone literacy, no patience for jargon. Every screen is built around that constraint first.
 
-1. Install dependencies
+## What it does
 
-   ```bash
-   npm install
-   ```
+- **Record a sale in 3 taps or fewer** — the home screen surfaces the items a shop sells most often, ranked by recency and frequency, so the most common sale is always one tap away.
+- **Track stock automatically** — every sale updates inventory in real time; low-stock items are flagged before they run out.
+- **Manage customer credit (udhaar)** — log money given and received per customer, see running balances, and remind customers to pay.
+- **See sales at a glance** — daily/weekly revenue, profit margins, and top sellers, without needing to read a spreadsheet.
 
-2. Start the app
+## Engineering highlights
 
-   ```bash
-   npx expo start
-   ```
+- **Accessibility as a hard constraint, not a checklist.** 48×48dp minimum tap targets, 14sp+ text that scales with the OS font-size setting, 4.5:1 minimum contrast, icon+label pairing everywhere (no icon-only buttons), and full screen-reader semantics on every interactive element.
+- **Offline-first.** All reads and writes hit a local SQLite database (via Drizzle ORM) — the app works fully without a network connection.
+- **Layered architecture.** Clean separation between UI, state, and data: screens read from signal-based controllers, controllers call repositories, repositories call typed DAOs. Each layer is independently testable.
+- **Tested where it matters.** Domain logic — pricing, margins, low-stock thresholds, ledger balances — is covered by unit tests that encode *why* the rule exists, not just what it returns.
 
-In the output, you'll find options to open the app in a
+## Tech stack
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+| Layer | Choice |
+|---|---|
+| App framework | Expo (React Native) + TypeScript |
+| Routing | Expo Router (file-based navigation) |
+| State management | `@preact/signals-react` |
+| Local database | SQLite (`expo-sqlite`) + Drizzle ORM |
+| Testing | Jest + React Native Testing Library |
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Getting started
 
 ```bash
-npm run reset-project
+npm install
+npx expo start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+From there you can open the app in a development build, an Android emulator, an iOS simulator, or Expo Go.
 
-### Other setup steps
+## Status
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Actively in development — core data layer, domain models, and app infrastructure are in place; feature screens are being built out next.
