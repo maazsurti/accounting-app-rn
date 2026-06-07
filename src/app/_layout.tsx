@@ -1,3 +1,5 @@
+import '@/core/l10n/i18n'; // initialise i18next before any component renders
+
 import { useEffect, useState } from 'react';
 import { Stack } from 'expo-router';
 import { useFonts } from 'expo-font';
@@ -19,7 +21,7 @@ export default function RootLayout() {
     'HindVadodara-Regular': require('../../assets/fonts/HindVadodara-Regular.ttf'),
     'HindVadodara-Medium': require('../../assets/fonts/HindVadodara-Medium.ttf'),
     'HindVadodara-SemiBold': require('../../assets/fonts/HindVadodara-SemiBold.ttf'),
-    'HindVadodara-Bold': require('../../assets/fonts/HindVadodara-Bold.ttf'),
+    'HindVadodara-Bold': require('../../assets/fonts/HindVadodara-Bold.ttf')
   });
 
   useEffect(() => {

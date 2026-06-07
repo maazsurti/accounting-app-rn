@@ -15,10 +15,10 @@ export default function TabsLayout() {
         headerShown: false,
         tabBarStyle: {
           backgroundColor: colors.surface,
-          borderTopColor: colors.border,
+          borderTopColor: colors.border
         },
         tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.textDisabled,
+        tabBarInactiveTintColor: colors.textDisabled
       }}
     >
       <Tabs.Screen
@@ -27,7 +27,7 @@ export default function TabsLayout() {
           title: 'Home',
           tabBarIcon: ({ color, size }) => (
             <MaterialIcons name="grid-view" size={size} color={color} />
-          ),
+          )
         }}
       />
       <Tabs.Screen
@@ -36,7 +36,7 @@ export default function TabsLayout() {
           title: 'Transactions',
           tabBarIcon: ({ color, size }) => (
             <MaterialIcons name="receipt-long" size={size} color={color} />
-          ),
+          )
         }}
       />
       <Tabs.Screen
@@ -45,7 +45,7 @@ export default function TabsLayout() {
           title: 'Credit',
           tabBarIcon: ({ color, size }) => (
             <MaterialIcons name="account-balance-wallet" size={size} color={color} />
-          ),
+          )
         }}
       />
       <Tabs.Screen
@@ -54,7 +54,7 @@ export default function TabsLayout() {
           title: 'Settings',
           tabBarIcon: ({ color, size }) => (
             <MaterialIcons name="settings" size={size} color={color} />
-          ),
+          )
         }}
       />
     </Tabs>

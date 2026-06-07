@@ -35,7 +35,7 @@ export const lightColors: AppColorScheme = {
   dangerLight: '#FEE2E2',
   onDanger: '#FFFFFF',
   warning: '#D97706',
-  warningLight: '#FEF3C7',
+  warningLight: '#FEF3C7'
 };
 
 export const darkColors: AppColorScheme = {
@@ -55,5 +55,5 @@ export const darkColors: AppColorScheme = {
   dangerLight: '#2D0A0A',
   onDanger: '#000000',
   warning: '#FBBF24',
-  warningLight: '#3A2602',
+  warningLight: '#3A2602'
 };

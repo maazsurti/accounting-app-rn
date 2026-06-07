@@ -2,6 +2,11 @@ import { createContext, useContext, type ReactNode } from 'react';
 
 import { openAppDatabase, type AppDatabase } from '@/core/db/client';
 import { AppThemeController } from '@/core/theme';
+import { ItemDao } from '@/core/db/daos/item-dao';
+import { TransactionDao } from '@/core/db/daos/transaction-dao';
+import { ItemRepository } from '@/features/inventory/repository/ItemRepository';
+import { TransactionRepository } from '@/features/quick_record/repository/TransactionRepository';
+import { QuickRecordController } from '@/features/quick_record/controllers/QuickRecordController';
 
 /**
  * Single dependency graph for the app, built once at startup. Mirrors Dart's
@@ -11,12 +16,17 @@ import { AppThemeController } from '@/core/theme';
 export interface AppDependencies {
   readonly db: AppDatabase;
   readonly themeController: AppThemeController;
+  readonly quickRecord: QuickRecordController;
 }
 
 export async function createAppDependencies(): Promise<AppDependencies> {
+  const db = openAppDatabase();
+  const itemRepo = new ItemRepository(new ItemDao(db));
+  const txRepo = new TransactionRepository(new TransactionDao(db));
   return {
-    db: openAppDatabase(),
+    db,
     themeController: new AppThemeController(),
+    quickRecord: new QuickRecordController(itemRepo, txRepo)
   };
 }
 

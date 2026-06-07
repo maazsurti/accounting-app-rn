@@ -20,7 +20,7 @@ const AppThemeContext = createContext<AppThemeData | null>(null);
 // useColorScheme() re-renders when OS light/dark preference changes.
 export const AppThemeProvider = observer(function AppThemeProvider({
   controller,
-  children,
+  children
 }: {
   controller: AppThemeController;
   children: ReactNode;
@@ -29,8 +29,7 @@ export const AppThemeProvider = observer(function AppThemeProvider({
   const { fontScale } = useWindowDimensions();
 
   const isDark =
-    controller.mode === 'dark' ||
-    (controller.mode === 'system' && osScheme === 'dark');
+    controller.mode === 'dark' || (controller.mode === 'system' && osScheme === 'dark');
 
   const colors: AppColorScheme = isDark ? darkColors : lightColors;
   const brightness: 'light' | 'dark' = isDark ? 'dark' : 'light';
