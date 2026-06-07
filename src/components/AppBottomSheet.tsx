@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useRef } from 'react';
+import { type ReactNode, useEffect, useMemo } from 'react';
 import {
   Animated,
   KeyboardAvoidingView,
@@ -26,8 +26,8 @@ export function AppBottomSheet({
   isDismissible = true
 }: AppBottomSheetProps) {
   const { colors } = useTheme();
-  const slideAnim = useRef(new Animated.Value(300)).current;
-  const opacityAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useMemo(() => new Animated.Value(300), []);
+  const opacityAnim = useMemo(() => new Animated.Value(0), []);
 
   useEffect(() => {
     if (visible) {

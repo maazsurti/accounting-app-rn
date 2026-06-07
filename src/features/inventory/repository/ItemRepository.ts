@@ -1,4 +1,10 @@
-import type { ItemDao, ItemRawRow, FrequentItemRawRow } from '@/core/db/daos/item-dao';
+import type {
+  ItemDao,
+  ItemRawRow,
+  FrequentItemRawRow,
+  ItemRow,
+  NewItemRow
+} from '@/core/db/daos/item-dao';
 import { Item, type ItemUnit } from '@/features/inventory/models/item';
 
 function rowToItem(row: ItemRawRow): Item {
@@ -27,6 +33,21 @@ function frequentRowToItem(row: FrequentItemRawRow): Item {
 export class ItemRepository {
   constructor(private readonly dao: ItemDao) {}
 
+  addItem(item: Item): Item {
+    const saved = item.copyWith({ updatedAt: item.updatedAt ?? item.createdAt });
+    const id = this.dao.insertItem(itemToNewRow(saved));
+    return saved.copyWith({ id });
+  }
+
+  updateItem(item: Item): void {
+    if (item.id === null) throw new Error('Cannot update item without id');
+    this.dao.updateItemRow(itemToRow(item));
+  }
+
+  deleteItem(id: number): void {
+    this.dao.softDelete(id);
+  }
+
   getAllItems(): Item[] {
     return this.dao.getAllActiveRaw().map(rowToItem);
   }
@@ -51,4 +72,40 @@ export class ItemRepository {
   toggleStar(itemId: number, starred: boolean): void {
     this.dao.toggleStar(itemId, starred);
   }
+}
+
+function itemToNewRow(item: Item): NewItemRow {
+  return {
+    name: item.name,
+    sellingPrice: item.sellingPrice,
+    totalPurchasePrice: item.totalPurchasePrice,
+    purchasedQty: item.purchasedQty,
+    currentStock: item.currentStock,
+    unit: item.unit,
+    imagePath: item.imagePath,
+    lowStockThreshold: item.lowStockThreshold,
+    isStarred: item.isStarred ? 1 : 0,
+    createdAt: item.createdAt,
+    updatedAt: item.updatedAt,
+    deletedAt: item.deletedAt
+  };
+}
+
+function itemToRow(item: Item): ItemRow {
+  if (item.id === null) throw new Error('Cannot map item without id');
+  return {
+    id: item.id,
+    name: item.name,
+    sellingPrice: item.sellingPrice,
+    totalPurchasePrice: item.totalPurchasePrice,
+    purchasedQty: item.purchasedQty,
+    currentStock: item.currentStock,
+    unit: item.unit,
+    imagePath: item.imagePath,
+    lowStockThreshold: item.lowStockThreshold,
+    isStarred: item.isStarred ? 1 : 0,
+    createdAt: item.createdAt,
+    updatedAt: item.updatedAt,
+    deletedAt: item.deletedAt
+  };
 }

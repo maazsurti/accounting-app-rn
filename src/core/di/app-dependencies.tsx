@@ -5,8 +5,10 @@ import { AppThemeController } from '@/core/theme';
 import { ItemDao } from '@/core/db/daos/item-dao';
 import { TransactionDao } from '@/core/db/daos/transaction-dao';
 import { ItemRepository } from '@/features/inventory/repository/ItemRepository';
+import { InventoryController } from '@/features/inventory/controllers/InventoryController';
 import { TransactionRepository } from '@/features/quick_record/repository/TransactionRepository';
 import { QuickRecordController } from '@/features/quick_record/controllers/QuickRecordController';
+import { createStorageService, type StorageService } from '@/core/storage';
 
 /**
  * Single dependency graph for the app, built once at startup. Mirrors Dart's
@@ -15,17 +17,22 @@ import { QuickRecordController } from '@/features/quick_record/controllers/Quick
  */
 export interface AppDependencies {
   readonly db: AppDatabase;
+  readonly storage: StorageService;
   readonly themeController: AppThemeController;
+  readonly inventory: InventoryController;
   readonly quickRecord: QuickRecordController;
 }
 
 export async function createAppDependencies(): Promise<AppDependencies> {
   const db = openAppDatabase();
+  const storage = createStorageService();
   const itemRepo = new ItemRepository(new ItemDao(db));
   const txRepo = new TransactionRepository(new TransactionDao(db));
   return {
     db,
-    themeController: new AppThemeController(),
+    storage,
+    themeController: new AppThemeController(storage),
+    inventory: new InventoryController(itemRepo),
     quickRecord: new QuickRecordController(itemRepo, txRepo)
   };
 }

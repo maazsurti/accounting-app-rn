@@ -34,6 +34,8 @@ describe('createTestAppDependencies', () => {
     const deps: AppDependencies = createTestAppDependencies();
 
     expect(deps.db).toBeTruthy();
+    expect(deps.storage).toBeTruthy();
+    expect(deps.inventory).toBeTruthy();
   });
 
   it('lets callers override individual services with test doubles', () => {
