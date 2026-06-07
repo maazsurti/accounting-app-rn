@@ -1,5 +1,5 @@
-import { RouteStub } from '@/components/route-stub';
+import { AddItemScreen as AddItemFeatureScreen } from '@/features/inventory/screens/AddItemScreen';
 
-export default function AddItemScreen() {
-  return <RouteStub label="Add item (Phase 3)" />;
+export default function AddItemRoute() {
+  return <AddItemFeatureScreen />;
 }

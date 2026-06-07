@@ -1,5 +1,5 @@
-import { RouteStub } from '@/components/route-stub';
+import { InventoryScreen as InventoryFeatureScreen } from '@/features/inventory/screens/InventoryScreen';
 
 export default function InventoryScreen() {
-  return <RouteStub label="Inventory — item catalog, stock, restock (Phase 3)" />;
+  return <InventoryFeatureScreen />;
 }
