@@ -1,6 +1,7 @@
 import { createContext, useContext, type ReactNode } from 'react';
 
 import { openAppDatabase, type AppDatabase } from '@/core/db/client';
+import { AppThemeController } from '@/core/theme';
 
 /**
  * Single dependency graph for the app, built once at startup. Mirrors Dart's
@@ -9,10 +10,14 @@ import { openAppDatabase, type AppDatabase } from '@/core/db/client';
  */
 export interface AppDependencies {
   readonly db: AppDatabase;
+  readonly themeController: AppThemeController;
 }
 
 export async function createAppDependencies(): Promise<AppDependencies> {
-  return { db: openAppDatabase() };
+  return {
+    db: openAppDatabase(),
+    themeController: new AppThemeController(),
+  };
 }
 
 const AppDependenciesContext = createContext<AppDependencies | null>(null);

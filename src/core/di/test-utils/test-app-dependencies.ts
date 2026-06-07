@@ -1,5 +1,6 @@
 import { createTestDb } from '@/core/db/test-utils/test-db';
 import type { AppDependencies } from '@/core/di/app-dependencies';
+import { AppThemeController } from '@/core/theme';
 
 /**
  * In-memory dependency graph for tests — same shape as production `AppDependencies`,
@@ -9,5 +10,9 @@ import type { AppDependencies } from '@/core/di/app-dependencies';
 export function createTestAppDependencies(
   overrides: Partial<AppDependencies> = {}
 ): AppDependencies {
-  return { db: createTestDb(), ...overrides };
+  return {
+    db: createTestDb(),
+    themeController: new AppThemeController(),
+    ...overrides,
+  };
 }
