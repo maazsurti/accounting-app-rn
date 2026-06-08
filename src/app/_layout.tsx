@@ -4,13 +4,15 @@ import { useEffect, useState } from 'react';
 import { Stack } from 'expo-router';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import {
   AppDependenciesProvider,
   createAppDependencies,
   type AppDependencies
 } from '@/core/di/app-dependencies';
-import { AppThemeProvider } from '@/core/theme';
+import { AppThemeProvider, useTheme } from '@/core/theme';
+import { AppTopSafeArea } from '@/core/safe-area/AppTopSafeArea';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -39,18 +41,29 @@ export default function RootLayout() {
   if (!fontsLoaded || deps === null) return null;
 
   return (
-    <AppDependenciesProvider deps={deps}>
-      <AppThemeProvider controller={deps.themeController}>
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="inventory" />
-          <Stack.Screen name="batch-sale" />
-          <Stack.Screen name="auth" />
-          <Stack.Screen name="onboarding" />
-          <Stack.Screen name="debug" />
-          <Stack.Screen name="lock" />
-        </Stack>
-      </AppThemeProvider>
-    </AppDependenciesProvider>
+    <SafeAreaProvider>
+      <AppDependenciesProvider deps={deps}>
+        <AppThemeProvider controller={deps.themeController}>
+          <RootStack />
+        </AppThemeProvider>
+      </AppDependenciesProvider>
+    </SafeAreaProvider>
+  );
+}
+
+function RootStack() {
+  const { colors } = useTheme();
+  return (
+    <AppTopSafeArea backgroundColor={colors.background}>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="inventory" />
+        <Stack.Screen name="batch-sale" />
+        <Stack.Screen name="auth" />
+        <Stack.Screen name="onboarding" />
+        <Stack.Screen name="debug" />
+        <Stack.Screen name="lock" />
+      </Stack>
+    </AppTopSafeArea>
   );
 }
