@@ -190,5 +190,12 @@
   "saleUpdated": "વેચાણ નોંધ અપડેટ થઈ.",
   "saleDeleted": "વેચાણ નોંધ ભૂંસાઈ.",
   "salesDeleted": "{{count}} વેચાણ નોંધો ભૂંસાઈ.",
-  "entryDateLabel": "તારીખ"
+  "entryDateLabel": "તારીખ",
+  "batchSale": "ઢગ સેલ",
+  "customerOptional": "ગ્રાહક (વૈકલ્પિક)",
+  "addToCart": "+ ઉમેરો",
+  "addToCartSemantic": "{{itemName}} ઉમેરો",
+  "removeFromCartSemantic": "{{itemName}} ને કાઢો",
+  "recordAllSale": "બધા વેચ્યા",
+  "startNewSale": "નવો સેલ"
 }

@@ -2,7 +2,6 @@ import { type ReactNode, useCallback, useEffect, useRef } from 'react';
 import {
   BottomSheetBackdrop,
   BottomSheetModal,
-  BottomSheetScrollView,
   BottomSheetView,
   type BottomSheetBackdropProps
 } from '@gorhom/bottom-sheet';
@@ -15,6 +14,7 @@ interface AppBottomSheetProps {
   onDismiss: () => void;
   children: ReactNode;
   isDismissible?: boolean;
+  /** @deprecated No longer needed — BottomSheetView is always used for correct dynamic sizing. */
   scrollable?: boolean;
 }
 
@@ -22,8 +22,7 @@ export function AppBottomSheet({
   visible,
   onDismiss,
   children,
-  isDismissible = true,
-  scrollable = true
+  isDismissible = true
 }: AppBottomSheetProps) {
   const { colors } = useTheme();
   const sheetRef = useRef<BottomSheetModal>(null);
@@ -61,17 +60,9 @@ export function AppBottomSheet({
       handleIndicatorStyle={{ backgroundColor: colors.border }}
       onDismiss={onDismiss}
     >
-      {scrollable ? (
-        <BottomSheetScrollView
-          bounces={false}
-          keyboardShouldPersistTaps="handled"
-          contentContainerStyle={styles.content}
-        >
-          {children}
-        </BottomSheetScrollView>
-      ) : (
-        <BottomSheetView style={styles.content}>{children}</BottomSheetView>
-      )}
+      {/* BottomSheetView is required for dynamic sizing — BottomSheetScrollView reports
+          unbounded height and causes the sheet to present at height 0. */}
+      <BottomSheetView style={styles.content}>{children}</BottomSheetView>
     </BottomSheetModal>
   );
 }

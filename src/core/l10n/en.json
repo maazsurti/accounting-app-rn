@@ -190,5 +190,12 @@
   "saleUpdated": "Sale entry updated.",
   "saleDeleted": "Sale entry deleted.",
   "salesDeleted": "{{count}} sale entries deleted.",
-  "entryDateLabel": "Date"
+  "entryDateLabel": "Date",
+  "batchSale": "Batch Sale",
+  "customerOptional": "Customer (optional)",
+  "addToCart": "+ Add",
+  "addToCartSemantic": "Add {{itemName}} to cart",
+  "removeFromCartSemantic": "Remove {{itemName}} from cart",
+  "recordAllSale": "Record All Sale",
+  "startNewSale": "New Sale"
 }

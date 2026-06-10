@@ -121,14 +121,8 @@ describe('AppBottomSheet', () => {
     mockDismiss.mockClear();
   });
 
-  it('uses Gorhom ScrollView by default for regular sheet content', async () => {
+  it('uses BottomSheetView for correct dynamic sizing', async () => {
     const screen = await renderSheet();
-
-    expect(screen.getByTestId('gorhom-bottom-sheet-scroll-view')).toBeTruthy();
-  });
-
-  it('can disable the internal scroll view for VirtualizedList children', async () => {
-    const screen = await renderSheet({ scrollable: false });
 
     expect(screen.queryByTestId('gorhom-bottom-sheet-scroll-view')).toBeNull();
     expect(screen.getByTestId('gorhom-bottom-sheet-view')).toBeTruthy();

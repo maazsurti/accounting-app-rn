@@ -1,9 +1,13 @@
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
+import BottomSheet, {
+  BottomSheetBackdrop,
+  BottomSheetView,
+  type BottomSheetBackdropProps
+} from '@gorhom/bottom-sheet';
 import { useRouter } from 'expo-router';
 import { reaction } from 'mobx';
 import { observer } from 'mobx-react-lite';
-import { useLayoutEffect, useRef } from 'react';
+import { useCallback, useLayoutEffect, useRef } from 'react';
 import { Alert, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { AppButton } from '@/components/AppButton';
@@ -40,6 +44,19 @@ export const InventoryScreen = observer(function InventoryScreen() {
       }
     );
   }, [controller]);
+
+  const renderBackdrop = useCallback(
+    (props: BottomSheetBackdropProps) => (
+      <BottomSheetBackdrop
+        {...props}
+        appearsOnIndex={0}
+        disappearsOnIndex={-1}
+        opacity={0.32}
+        pressBehavior="close"
+      />
+    ),
+    []
+  );
 
   const allItems = controller.items;
   const lowStockItems = controller.displayedLowStockItems;
@@ -108,6 +125,7 @@ export const InventoryScreen = observer(function InventoryScreen() {
         index={-1}
         snapPoints={['55%']}
         enablePanDownToClose
+        backdropComponent={renderBackdrop}
         onClose={() => controller.closeRestockSheet()}
       >
         <BottomSheetView style={styles.restockSheetWrap}>
