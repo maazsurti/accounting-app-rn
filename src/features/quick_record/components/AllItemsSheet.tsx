@@ -1,18 +1,18 @@
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { observer } from 'mobx-react-lite';
 import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  FlatList,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
-  FlatList
+  View
 } from 'react-native';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { observer } from 'mobx-react-lite';
 
+import { localizedItemUnitLabel, useL10n } from '@/core/l10n/use-l10n';
 import { useTheme } from '@/core/theme';
-import { useL10n, localizedItemUnitLabel } from '@/core/l10n/use-l10n';
 import { formatInr } from '@/core/utils/format';
 import type { Item } from '@/features/inventory/models/item';
 import type { QuickRecordController } from '@/features/quick_record/controllers/QuickRecordController';

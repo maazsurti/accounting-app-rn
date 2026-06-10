@@ -4,7 +4,10 @@ import { useEffect, useState } from 'react';
 import { Stack } from 'expo-router';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
+import { StyleSheet } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 
 import {
   AppDependenciesProvider,
@@ -41,13 +44,17 @@ export default function RootLayout() {
   if (!fontsLoaded || deps === null) return null;
 
   return (
-    <SafeAreaProvider>
-      <AppDependenciesProvider deps={deps}>
-        <AppThemeProvider controller={deps.themeController}>
-          <RootStack />
-        </AppThemeProvider>
-      </AppDependenciesProvider>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={styles.flex}>
+      <SafeAreaProvider>
+        <AppDependenciesProvider deps={deps}>
+          <AppThemeProvider controller={deps.themeController}>
+            <BottomSheetModalProvider>
+              <RootStack />
+            </BottomSheetModalProvider>
+          </AppThemeProvider>
+        </AppDependenciesProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
 
@@ -67,3 +74,7 @@ function RootStack() {
     </AppTopSafeArea>
   );
 }
+
+const styles = StyleSheet.create({
+  flex: { flex: 1 }
+});

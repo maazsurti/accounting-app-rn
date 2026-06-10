@@ -1,6 +1,6 @@
+import { render } from '@testing-library/react-native';
 import { StyleSheet, Text } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { render } from '@testing-library/react-native';
 
 import { AppTopSafeArea } from './AppTopSafeArea';
 

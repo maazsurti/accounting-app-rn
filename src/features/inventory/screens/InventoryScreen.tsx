@@ -1,16 +1,21 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { useRouter } from 'expo-router';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
+import { useRouter } from 'expo-router';
+import { reaction } from 'mobx';
 import { observer } from 'mobx-react-lite';
+import { useLayoutEffect, useRef } from 'react';
+import { Alert, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
-import { AppBottomSheet } from '@/components/AppBottomSheet';
 import { AppButton } from '@/components/AppButton';
 import { PressScale } from '@/components/PressScale';
 import { useDeps } from '@/core/di/app-dependencies';
-import { useL10n, localizedItemUnitLabel } from '@/core/l10n/use-l10n';
+import { localizedItemUnitLabel, useL10n } from '@/core/l10n/use-l10n';
 import { useTheme } from '@/core/theme';
 import { formatInr, formatQty } from '@/core/utils/format';
+import type {
+  InventoryController,
+  RestockFieldError
+} from '@/features/inventory/controllers/InventoryController';
 import type { Item } from '@/features/inventory/models/item';
 import { ScreenHeader } from './ScreenHeader';
 
@@ -20,25 +25,26 @@ export const InventoryScreen = observer(function InventoryScreen() {
   const router = useRouter();
   const l10n = useL10n();
   const { colors, text } = useTheme();
-  const loadedRef = useRef(false);
-  const [query, setQuery] = useState('');
-  const [restockItem, setRestockItem] = useState<Item | null>(null);
+  const restockSheetRef = useRef<BottomSheet>(null);
 
-  useEffect(() => {
-    if (!loadedRef.current) {
-      loadedRef.current = true;
-      controller.load();
-    }
+  useLayoutEffect(() => {
+    controller.load();
+  }, [controller]);
+
+  useLayoutEffect(() => {
+    return reaction(
+      () => controller.restockItemId,
+      (id) => {
+        if (id !== null) restockSheetRef.current?.expand();
+        else restockSheetRef.current?.close();
+      }
+    );
   }, [controller]);
 
   const allItems = controller.items;
-  const lowStockItems = query.trim() === '' ? controller.lowStockItems : [];
-  const visibleItems = useMemo(() => {
-    const normalized = query.trim().toLowerCase();
-    if (normalized === '') return allItems;
-    return allItems.filter((item) => item.name.toLowerCase().includes(normalized));
-  }, [allItems, query]);
-  const totalValue = allItems.reduce((sum, item) => sum + item.sellingPrice * item.currentStock, 0);
+  const lowStockItems = controller.displayedLowStockItems;
+  const visibleItems = controller.visibleItems;
+  const totalValue = controller.totalStockValue;
 
   function confirmDelete(item: Item) {
     Alert.alert(l10n('deleteItemTitle'), l10n('deleteItemBody', { itemName: item.name }), [
@@ -50,7 +56,11 @@ export const InventoryScreen = observer(function InventoryScreen() {
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
       <ScreenHeader title={l10n('inventory')} />
-      <SearchBar value={query} onChangeText={setQuery} />
+      <SearchBar
+        value={controller.searchQuery}
+        onChangeText={(value) => controller.setSearchQuery(value)}
+        onClear={() => controller.clearSearchQuery()}
+      />
       {allItems.length === 0 ? (
         <EmptyState />
       ) : (
@@ -70,7 +80,7 @@ export const InventoryScreen = observer(function InventoryScreen() {
             <InventoryItemTile
               item={item}
               onToggleStar={() => controller.toggleStar(item)}
-              onRestock={() => setRestockItem(item)}
+              onRestock={() => controller.openRestockSheet(item)}
               onEdit={() =>
                 router.push({ pathname: '/inventory/edit/[id]', params: { id: String(item.id) } })
               }
@@ -93,27 +103,29 @@ export const InventoryScreen = observer(function InventoryScreen() {
         </View>
       </PressScale>
 
-      <AppBottomSheet visible={restockItem !== null} onDismiss={() => setRestockItem(null)}>
-        {restockItem && (
-          <RestockSheet
-            item={restockItem}
-            onSave={(quantity, totalCost) => {
-              controller.restockItem({ item: restockItem, quantity, totalCost });
-              setRestockItem(null);
-            }}
-          />
-        )}
-      </AppBottomSheet>
+      <BottomSheet
+        ref={restockSheetRef}
+        index={-1}
+        snapPoints={['55%']}
+        enablePanDownToClose
+        onClose={() => controller.closeRestockSheet()}
+      >
+        <BottomSheetView style={styles.restockSheetWrap}>
+          {controller.selectedRestockItem && <RestockSheet controller={controller} />}
+        </BottomSheetView>
+      </BottomSheet>
     </View>
   );
 });
 
 function SearchBar({
   value,
-  onChangeText
+  onChangeText,
+  onClear
 }: {
   value: string;
   onChangeText: (value: string) => void;
+  onClear: () => void;
 }) {
   const l10n = useL10n();
   const { colors, text } = useTheme();
@@ -136,7 +148,7 @@ function SearchBar({
         />
         {value !== '' && (
           <Pressable
-            onPress={() => onChangeText('')}
+            onPress={onClear}
             accessibilityRole="button"
             accessibilityLabel={l10n('cancel')}
             style={styles.clearButton}
@@ -336,37 +348,17 @@ function InventoryItemTile({
   );
 }
 
-function RestockSheet({
-  item,
-  onSave
+const RestockSheet = observer(function RestockSheet({
+  controller
 }: {
-  item: Item;
-  onSave: (quantity: number, totalCost: number) => void;
+  controller: InventoryController;
 }) {
   const l10n = useL10n();
   const { colors, text } = useTheme();
-  const [quantity, setQuantity] = useState('');
-  const [totalCost, setTotalCost] = useState('');
-  const [quantityError, setQuantityError] = useState<string | null>(null);
-  const [costError, setCostError] = useState<string | null>(null);
+  const item = controller.selectedRestockItem;
+  if (item === null) return null;
   const unitLabel = localizedItemUnitLabel(item.unit, l10n);
-  const parsedQuantity = Number(quantity);
-  const parsedTotalCost = Number(totalCost);
-  const newLotCost =
-    Number.isFinite(parsedQuantity) && parsedQuantity > 0 && Number.isFinite(parsedTotalCost)
-      ? parsedTotalCost / parsedQuantity
-      : 0;
-
-  function submit() {
-    const nextQuantityError =
-      !Number.isFinite(parsedQuantity) || parsedQuantity <= 0 ? l10n('enterQtyAboveZero') : null;
-    const nextCostError =
-      !Number.isFinite(parsedTotalCost) || parsedTotalCost < 0 ? l10n('enterValidAmount') : null;
-    setQuantityError(nextQuantityError);
-    setCostError(nextCostError);
-    if (nextQuantityError || nextCostError) return;
-    onSave(parsedQuantity, parsedTotalCost);
-  }
+  const newLotCost = controller.restockNewLotCost;
 
   return (
     <View style={styles.restockSheet}>
@@ -376,30 +368,35 @@ function RestockSheet({
       </Text>
       <SheetField
         label={l10n('quantityAdded')}
-        value={quantity}
-        error={quantityError}
-        onChangeText={(value) => {
-          setQuantity(value);
-          setQuantityError(null);
-        }}
+        value={controller.restockQuantityText}
+        error={localizeRestockError(controller.restockQuantityError, l10n)}
+        onChangeText={(value) => controller.setRestockQuantityText(value)}
       />
       <SheetField
         label={l10n('totalCostRupees')}
-        value={totalCost}
-        error={costError}
-        onChangeText={(value) => {
-          setTotalCost(value);
-          setCostError(null);
-        }}
+        value={controller.restockTotalCostText}
+        error={localizeRestockError(controller.restockCostError, l10n)}
+        onChangeText={(value) => controller.setRestockTotalCostText(value)}
       />
       {newLotCost > 0 && (
         <Text style={[text.labelSmall, { color: colors.primary }]}>
           {l10n('newLotCost', { amount: formatInr(newLotCost), unit: unitLabel })}
         </Text>
       )}
-      <AppButton label={l10n('saveRestock')} icon="check" onPress={submit} />
+      <AppButton
+        label={l10n('saveRestock')}
+        icon="check"
+        onPress={() => controller.submitRestock()}
+      />
     </View>
   );
+});
+
+function localizeRestockError(
+  error: RestockFieldError | null,
+  l10n: ReturnType<typeof useL10n>
+): string | null {
+  return error === null ? null : l10n(error);
 }
 
 function SheetField({
@@ -508,6 +505,7 @@ const styles = StyleSheet.create({
   },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24, gap: 8 },
   noResults: { alignItems: 'center', justifyContent: 'center', padding: 32, gap: 8 },
+  restockSheetWrap: { flex: 1, padding: 24 },
   restockSheet: { gap: 16 },
   sheetField: { gap: 8 },
   sheetInput: { minHeight: 52, borderWidth: 1, borderRadius: 8, paddingHorizontal: 14 }

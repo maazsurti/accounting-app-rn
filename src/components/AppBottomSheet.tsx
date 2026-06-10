@@ -1,14 +1,12 @@
-import { type ReactNode, useEffect, useMemo } from 'react';
+import { type ReactNode, useCallback, useEffect, useRef } from 'react';
 import {
-  Animated,
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  View
-} from 'react-native';
+  BottomSheetBackdrop,
+  BottomSheetModal,
+  BottomSheetScrollView,
+  BottomSheetView,
+  type BottomSheetBackdropProps
+} from '@gorhom/bottom-sheet';
+import { StyleSheet } from 'react-native';
 
 import { useTheme } from '@/core/theme';
 
@@ -17,96 +15,70 @@ interface AppBottomSheetProps {
   onDismiss: () => void;
   children: ReactNode;
   isDismissible?: boolean;
+  scrollable?: boolean;
 }
 
 export function AppBottomSheet({
   visible,
   onDismiss,
   children,
-  isDismissible = true
+  isDismissible = true,
+  scrollable = true
 }: AppBottomSheetProps) {
   const { colors } = useTheme();
-  const slideAnim = useMemo(() => new Animated.Value(300), []);
-  const opacityAnim = useMemo(() => new Animated.Value(0), []);
+  const sheetRef = useRef<BottomSheetModal>(null);
 
   useEffect(() => {
     if (visible) {
-      Animated.parallel([
-        Animated.timing(slideAnim, { toValue: 0, duration: 280, useNativeDriver: true }),
-        Animated.timing(opacityAnim, { toValue: 1, duration: 200, useNativeDriver: true })
-      ]).start();
+      const frame = requestAnimationFrame(() => {
+        sheetRef.current?.present();
+      });
+      return () => cancelAnimationFrame(frame);
     } else {
-      Animated.parallel([
-        Animated.timing(slideAnim, { toValue: 300, duration: 200, useNativeDriver: true }),
-        Animated.timing(opacityAnim, { toValue: 0, duration: 200, useNativeDriver: true })
-      ]).start();
+      sheetRef.current?.dismiss();
     }
-  }, [visible, slideAnim, opacityAnim]);
+  }, [visible]);
+
+  const renderBackdrop = useCallback(
+    (props: BottomSheetBackdropProps) => (
+      <BottomSheetBackdrop
+        {...props}
+        appearsOnIndex={0}
+        disappearsOnIndex={-1}
+        opacity={0.32}
+        pressBehavior={isDismissible ? 'close' : 'none'}
+      />
+    ),
+    [isDismissible]
+  );
 
   return (
-    <Modal
-      transparent
-      visible={visible}
-      animationType="none"
-      onRequestClose={isDismissible ? onDismiss : undefined}
+    <BottomSheetModal
+      ref={sheetRef}
+      backgroundStyle={{ backgroundColor: colors.surface }}
+      backdropComponent={renderBackdrop}
+      enablePanDownToClose={isDismissible}
+      handleIndicatorStyle={{ backgroundColor: colors.border }}
+      onDismiss={onDismiss}
     >
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.flex}
-      >
-        <Animated.View
-          style={[
-            { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
-            { opacity: opacityAnim }
-          ]}
+      {scrollable ? (
+        <BottomSheetScrollView
+          bounces={false}
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={styles.content}
         >
-          <Pressable style={styles.flex} onPress={isDismissible ? onDismiss : undefined} />
-        </Animated.View>
-        <Animated.View
-          style={[
-            styles.sheet,
-            { backgroundColor: colors.surface, transform: [{ translateY: slideAnim }] }
-          ]}
-        >
-          <View style={[styles.handle, { backgroundColor: colors.border }]} />
-          <ScrollView
-            bounces={false}
-            keyboardShouldPersistTaps="handled"
-            contentContainerStyle={styles.content}
-          >
-            {children}
-          </ScrollView>
-        </Animated.View>
-      </KeyboardAvoidingView>
-    </Modal>
+          {children}
+        </BottomSheetScrollView>
+      ) : (
+        <BottomSheetView style={styles.content}>{children}</BottomSheetView>
+      )}
+    </BottomSheetModal>
   );
 }
 
 const styles = StyleSheet.create({
-  flex: { flex: 1 },
-  overlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.4)'
-  },
-  sheet: {
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    paddingBottom: 20
-  },
-  handle: {
-    width: 36,
-    height: 4,
-    borderRadius: 2,
-    alignSelf: 'center',
-    marginTop: 12,
-    marginBottom: 20
-  },
   content: {
     paddingHorizontal: 20,
-    paddingBottom: 8
+    paddingBottom: 28
   }
 });

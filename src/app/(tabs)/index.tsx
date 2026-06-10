@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, ToastAndroid, Platform, View } from 'react-native';
+import { FlatList, StyleSheet, Text, ToastAndroid, Platform, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { observer } from 'mobx-react-lite';
@@ -121,7 +121,11 @@ export default observer(function HomeScreen() {
       </AppBottomSheet>
 
       {/* All-items search sheet */}
-      <AppBottomSheet visible={showAllItems} onDismiss={() => setShowAllItems(false)}>
+      <AppBottomSheet
+        visible={showAllItems}
+        onDismiss={() => setShowAllItems(false)}
+        scrollable={false}
+      >
         <AllItemsSheet
           controller={controller}
           onItemSelected={(item) => {
@@ -173,22 +177,22 @@ function HomeAppBar({
         <Text style={text.headlineSmall}>{hasItems ? l10n('quickRecord') : '—'}</Text>
       </View>
       <View style={styles.appBarActions}>
-        <Pressable
+        <PressScale
           onPress={onCartTap}
           accessibilityRole="button"
           accessibilityLabel="Record batch sale"
           style={[styles.iconBtn, { backgroundColor: colors.primaryLight }]}
         >
           <MaterialIcons name="add-shopping-cart" size={22} color={colors.primary} />
-        </Pressable>
-        <Pressable
+        </PressScale>
+        <PressScale
           onPress={onSearchTap}
           accessibilityRole="button"
           accessibilityLabel={l10n('searchAllItemsSemantic')}
           style={[styles.iconBtn, { backgroundColor: colors.primaryLight }]}
         >
           <MaterialIcons name="search" size={22} color={colors.primary} />
-        </Pressable>
+        </PressScale>
       </View>
     </View>
   );
@@ -225,8 +229,8 @@ const styles = StyleSheet.create({
   appBarLeft: { flex: 1, gap: 2 },
   appBarActions: { flexDirection: 'row', gap: 10 },
   iconBtn: {
-    width: 40,
-    height: 40,
+    width: 48,
+    height: 48,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center'

@@ -45,6 +45,22 @@ describe('InventoryController', () => {
     expect(controller.lowStockItems.map((item) => item.name)).toEqual(['Low']);
   });
 
+  it('owns inventory search state and derives visible/low-stock rows', () => {
+    const { controller } = createController();
+    controller.addItem(makeItem({ name: 'Sugar', currentStock: 2, lowStockThreshold: 3 }));
+    controller.addItem(makeItem({ name: 'Salt', currentStock: 10, lowStockThreshold: 3 }));
+
+    controller.setSearchQuery('sug');
+
+    expect(controller.visibleItems.map((item) => item.name)).toEqual(['Sugar']);
+    expect(controller.displayedLowStockItems).toEqual([]);
+
+    controller.clearSearchQuery();
+
+    expect(controller.visibleItems.map((item) => item.name)).toEqual(['Sugar', 'Salt']);
+    expect(controller.displayedLowStockItems.map((item) => item.name)).toEqual(['Sugar']);
+  });
+
   it('restocks an existing item by merging quantity and cost, not inserting a duplicate', () => {
     const { controller, repo } = createController();
     const saved = controller.addItem(
@@ -61,6 +77,34 @@ describe('InventoryController', () => {
       totalPurchasePrice: 700
     });
     expect(repo.getAllItems()).toHaveLength(1);
+  });
+
+  it('owns restock sheet state, validates input, and closes after successful submit', () => {
+    const { controller, repo } = createController();
+    const saved = controller.addItem(
+      makeItem({ purchasedQty: 10, currentStock: 4, totalPurchasePrice: 400 })
+    );
+
+    controller.openRestockSheet(saved);
+    controller.setRestockQuantityText('0');
+    controller.setRestockTotalCostText('-1');
+
+    expect(controller.submitRestock()).toBe(false);
+    expect(controller.restockQuantityError).toBe('enterQtyAboveZero');
+    expect(controller.restockCostError).toBe('enterValidAmount');
+
+    controller.setRestockQuantityText('6');
+    controller.setRestockTotalCostText('300');
+
+    expect(controller.restockNewLotCost).toBe(50);
+    expect(controller.submitRestock()).toBe(true);
+    expect(controller.selectedRestockItem).toBeNull();
+    expect(repo.getAllItems()[0]).toMatchObject({
+      id: saved.id,
+      purchasedQty: 16,
+      currentStock: 10,
+      totalPurchasePrice: 700
+    });
   });
 
   it('deletes items with a soft delete and increments changeStamp', () => {
